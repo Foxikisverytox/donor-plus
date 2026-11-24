@@ -5,166 +5,218 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Донор+ · Biopharma Plasma</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #E8EFF8; color: #132238; }
-    .shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background: #F4F7FC; display: flex; flex-direction: column; }
-    .navy { background: linear-gradient(145deg, #0B1F3A 0%, #143666 100%); }
-    .tab.active { color: #1D5FB8; font-weight: 700; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #EFE8E5; color: #241618; }
+    .shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background: #FAF7F5; display: flex; flex-direction: column; }
+    .crimson { background: linear-gradient(145deg, #7F1D1D 0%, #A61B2B 100%); }
+    .tab.active { color: #991B1B; font-weight: 800; }
   </style>
 </head>
 <body>
   <div class="shell shadow-xl relative">
-    <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[390px] bg-[#0B1F3A] text-white px-4 py-3 rounded-2xl shadow-lg text-xs font-medium text-center"></div>
+    <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[390px] bg-[#241618] text-amber-300 px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold text-center border border-amber-400/30"></div>
 
-    <!-- ВХІД ПО НОМЕРУ -->
+    <!-- СПЕЦ-ЕКРАН ПРИ СКАНУВАННІ QR-КОДУ МЕРЧУ -->
+    <section id="view-voucher" class="hidden flex-1 flex flex-col justify-center p-6 space-y-5 text-center">
+      <div class="bg-white rounded-3xl p-6 border-2 border-amber-300 shadow-lg space-y-4">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-extrabold border border-emerald-200">
+          ✓ ДІЙСНИЙ ВАУЧЕР BIOPHARMA PLASMA
+        </div>
+        <div id="voucher-art" class="w-44 h-44 mx-auto rounded-3xl bg-[#FAF7F5] border border-amber-200 flex items-center justify-center p-4"></div>
+        <div>
+          <p id="voucher-level" class="text-xs font-extrabold uppercase tracking-wider text-[#991B1B]"></p>
+          <h1 id="voucher-title" class="text-xl font-extrabold text-[#241618] mt-1"></h1>
+          <p id="voucher-donor" class="text-xs text-slate-500 mt-2"></p>
+        </div>
+        <div class="bg-amber-50 rounded-2xl p-3 text-xs text-amber-900 font-medium">
+          Подарунок підтверджено системою «Донор+». Можна видавати на ресепшені.
+        </div>
+        <a href="https://foxikisverytox.github.io/donor-plus/" class="block w-full py-3 rounded-2xl crimson text-white font-bold text-sm">Перейти в Донор+</a>
+      </div>
+    </section>
+
+    <!-- ЕКРАН ВХОДУ -->
     <section id="view-login" class="flex-1 flex flex-col justify-center p-6 space-y-6">
       <div class="text-center space-y-2">
-        <div class="w-16 h-16 mx-auto rounded-2xl navy text-amber-400 flex items-center justify-center text-2xl font-extrabold shadow-lg">Д+</div>
-        <h1 class="text-2xl font-extrabold text-[#0B1F3A]">Вхід у Донор+</h1>
-        <p class="text-xs text-slate-500">Введіть ваш номер телефону, щоб побачити ставку, обсяг плазми та мерч.</p>
+        <div class="w-16 h-16 mx-auto rounded-2xl crimson text-amber-300 flex items-center justify-center text-2xl font-extrabold shadow-lg border border-amber-400/30">Д+</div>
+        <h1 class="text-2xl font-extrabold text-[#241618]">Вхід у Донор+</h1>
+        <p class="text-xs text-stone-500">Введіть ваш номер телефону для доступу до кабінету Biopharma Plasma.</p>
       </div>
-
-      <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-        <label for="phone-input" class="text-xs font-bold text-slate-600 block">Номер телефону</label>
-        <input id="phone-input" type="tel" placeholder="+380 ..." class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-base font-semibold text-[#0B1F3A] focus:outline-none focus:border-[#1D5FB8]" />
-        <p id="login-error" class="hidden text-xs text-rose-600 font-semibold"></p>
-        <button id="btn-login" type="button" onclick="handleLogin()" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] active:bg-[#14478E] text-white font-bold text-sm shadow">Увійти в кабінет</button>
-        <p id="db-status" class="text-[11px] text-center text-slate-400">Завантаження бази...</p>
+      <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-sm space-y-3">
+        <label for="phone-input" class="text-xs font-bold text-stone-600 block">Номер телефону</label>
+        <input id="phone-input" type="tel" placeholder="+380 ..." class="w-full rounded-2xl border border-stone-300 px-4 py-3 text-base font-semibold text-[#241618] focus:outline-none focus:border-[#991B1B]" />
+        <p id="login-error" class="hidden text-xs text-rose-700 font-semibold"></p>
+        <button id="btn-login" type="button" onclick="handleLogin()" class="w-full py-3.5 rounded-2xl crimson text-white font-bold text-sm shadow">Увійти в кабінет</button>
+        <p id="db-status" class="text-[11px] text-center text-stone-400">Завантаження бази...</p>
       </div>
     </section>
 
     <!-- ОСНОВНИЙ ДОДАТОК -->
     <div id="app-main" class="hidden flex-1 flex flex-col">
-      <header class="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-20">
+      <header class="px-4 py-3 bg-white border-b border-stone-200 flex items-center justify-between sticky top-0 z-20">
         <div>
-          <span class="font-extrabold text-base text-[#0B1F3A]">Донор+</span>
-          <p id="greeting" class="text-xs text-slate-500 font-medium"></p>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-base text-[#991B1B]">Донор+</span>
+            <span id="mod-badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">МОДЕРАТОР</span>
+          </div>
+          <p id="greeting" class="text-xs text-stone-500 font-medium"></p>
         </div>
         <div class="flex items-center gap-1.5">
-          <button type="button" onclick="syncDb()" class="text-xs font-semibold text-[#1D5FB8] bg-blue-50 px-2.5 py-1.5 rounded-xl">Оновити</button>
-          <button type="button" onclick="logout()" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-xl">Вийти</button>
+          <button type="button" onclick="syncDb()" class="text-xs font-semibold text-[#991B1B] bg-rose-50 px-2.5 py-1.5 rounded-xl">Оновити</button>
+          <button type="button" onclick="logout()" class="text-xs font-semibold text-stone-600 bg-stone-100 px-2.5 py-1.5 rounded-xl">Вийти</button>
         </div>
       </header>
 
       <main class="flex-1 p-4 pb-24 space-y-4">
+        <!-- 1. ГОЛОВНА -->
         <section id="view-home" class="space-y-4">
-          <div class="navy rounded-3xl p-5 text-white shadow-lg">
+          <div class="crimson rounded-3xl p-5 text-white shadow-lg">
             <div class="flex justify-between items-start">
               <div>
-                <p id="stage-label" class="text-xs uppercase tracking-wider text-blue-200">Наступна виплата</p>
+                <p id="stage-label" class="text-xs uppercase tracking-wider text-amber-200/90 font-semibold">Наступна виплата</p>
                 <div class="flex items-center gap-2 mt-1">
                   <span id="next-payout" class="text-4xl font-extrabold">500 ₴</span>
-                  <span id="rate-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300"></span>
+                  <span id="rate-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30"></span>
                 </div>
               </div>
               <div class="text-right">
-                <span class="text-[11px] text-blue-200 block">Здач</span>
+                <span class="text-[11px] text-rose-200 block">Здач</span>
                 <span id="hero-count" class="text-xl font-bold">0</span>
               </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-white/10">
+            <div class="mt-4 pt-3 border-t border-white/15">
               <div class="flex justify-between text-xs mb-1.5">
-                <span id="prog-label" class="text-blue-100"></span>
+                <span id="prog-label" class="text-rose-100"></span>
                 <span id="prog-pct" class="font-bold text-amber-300">0%</span>
               </div>
-              <div class="w-full h-2 bg-white/15 rounded-full overflow-hidden">
-                <div id="prog-bar" class="h-full bg-amber-400 rounded-full transition-all duration-500" style="width:10%"></div>
+              <div class="w-full h-2 bg-black/20 rounded-full overflow-hidden">
+                <div id="prog-bar" class="h-full bg-gradient-to-r from-amber-300 to-amber-500 rounded-full transition-all duration-500" style="width:10%"></div>
               </div>
             </div>
           </div>
 
-          <div id="active-booking-card" class="hidden bg-emerald-50 border border-emerald-200 rounded-3xl p-4 space-y-2">
+          <div id="active-booking-card" class="hidden bg-emerald-50 border border-emerald-200 rounded-3xl p-4">
             <div class="flex justify-between items-start">
               <div>
                 <span class="text-[10px] font-extrabold uppercase text-emerald-700">Ваш активний запис</span>
-                <p id="booking-summary" class="text-sm font-bold text-[#0B1F3A] mt-0.5"></p>
-                <p id="booking-center-txt" class="text-xs text-slate-600"></p>
+                <p id="booking-summary" class="text-sm font-bold text-[#241618] mt-0.5"></p>
+                <p id="booking-center-txt" class="text-xs text-stone-600"></p>
               </div>
-              <button type="button" onclick="cancelBooking()" class="text-xs font-bold text-rose-600 bg-white px-2.5 py-1 rounded-xl border border-rose-200">Скасувати</button>
+              <button type="button" onclick="cancelBooking()" class="text-xs font-bold text-rose-700 bg-white px-2.5 py-1 rounded-xl border border-rose-200">Скасувати</button>
             </div>
           </div>
 
-          <div class="bg-white rounded-3xl p-5 border border-slate-200 flex items-center gap-4">
-            <div class="w-20 h-20 rounded-full border-[7px] border-[#1D5FB8] flex flex-col items-center justify-center shrink-0">
-              <span id="days-num" class="text-xl font-extrabold text-[#0B1F3A] leading-none">0</span>
-              <span id="days-caption" class="text-[10px] text-slate-500">днів</span>
+          <div class="bg-white rounded-3xl p-5 border border-stone-200 flex items-center gap-4">
+            <div class="w-20 h-20 rounded-full border-[7px] border-[#991B1B] flex flex-col items-center justify-center shrink-0">
+              <span id="days-num" class="text-xl font-extrabold text-[#241618] leading-none">0</span>
+              <span id="days-caption" class="text-[10px] text-stone-500">днів</span>
             </div>
             <div>
-              <span id="window-pill" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700"></span>
-              <p id="window-text" class="text-xs text-slate-600 mt-1.5"></p>
+              <span id="window-pill" class="text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+              <p id="window-text" class="text-xs text-stone-600 mt-1.5"></p>
             </div>
           </div>
 
-          <button type="button" onclick="openBooking()" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] text-white font-bold text-sm shadow">Обрати дату та час донації</button>
-
-          <div class="bg-amber-50 border border-amber-200 rounded-3xl p-4 space-y-2.5">
-            <p class="text-xs font-extrabold text-amber-900 uppercase">Локальна симуляція (для тесту)</p>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="simDonate()" class="py-2.5 px-3 rounded-xl bg-amber-600 text-white font-bold text-xs">+ Донація (650 мл)</button>
-              <button type="button" onclick="simMiss()" class="py-2.5 px-3 rounded-xl bg-white text-amber-900 border border-amber-300 font-bold text-xs">Пропустити вікно</button>
-            </div>
-          </div>
+          <button type="button" onclick="openBooking()" class="w-full py-3.5 rounded-2xl crimson text-white font-bold text-sm shadow">Обрати дату та час донації</button>
         </section>
 
+        <!-- 2. СТАТИСТИКА ТА РЕАЛЬНИЙ ВПЛИВ -->
         <section id="view-stats" class="hidden space-y-4">
-          <div class="navy rounded-3xl p-6 text-white text-center shadow-lg">
-            <p class="text-xs uppercase text-blue-200">Здано плазми за весь час</p>
-            <div class="text-4xl font-extrabold text-amber-400 my-3" id="stats-ml">0 мл</div>
-            <p id="stats-hint" class="text-xs text-blue-100"></p>
+          <div class="crimson rounded-3xl p-6 text-white text-center shadow-lg">
+            <p class="text-xs uppercase text-amber-200 font-semibold">Здано плазми за весь час</p>
+            <div class="text-4xl font-extrabold text-amber-300 my-2.5" id="stats-ml">0 мл</div>
+            <p id="stats-hint" class="text-xs text-rose-100"></p>
           </div>
+
           <div class="grid grid-cols-2 gap-3">
-            <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
-              <span id="stats-count" class="text-2xl font-extrabold text-[#0B1F3A] block">0</span>
-              <span class="text-xs text-slate-500">Донацій</span>
+            <div class="bg-white rounded-2xl p-4 border border-stone-200 text-center">
+              <span id="stats-lives" class="text-2xl font-extrabold text-[#991B1B] block">0</span>
+              <span class="text-xs font-bold text-[#241618] block">Доз (до N пацієнтів)</span>
+              <span class="text-[10px] text-stone-400">~220 мл = 1 доза плазми</span>
             </div>
-            <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
-              <span id="stats-lives" class="text-2xl font-extrabold text-amber-600 block">0</span>
-              <span class="text-xs text-slate-500">Врятовано життів*</span>
+            <div class="bg-white rounded-2xl p-4 border border-stone-200 text-center">
+              <span id="stats-days-therapy" class="text-2xl font-extrabold text-amber-600 block">0</span>
+              <span class="text-xs font-bold text-[#241618] block">Днів терапії</span>
+              <span class="text-[10px] text-stone-400">Імуноглобулін (PPTA)</span>
             </div>
           </div>
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2">
+
+          <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-4 text-xs text-amber-950 space-y-1.5">
+            <p class="font-extrabold text-[#991B1B]">Як це працює в медицині:</p>
+            <p>• 130 донацій забезпечують <strong>1 рік життя</strong> пацієнту з первинним імунодефіцитом (дані PPTA).</p>
+            <p>• З вашої плазми виготовляють альбумін та імуноглобуліни для лікування понад <strong>50 важких станів</strong> (опіки, травми, онкологія).</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 border border-stone-200 space-y-2">
             <div class="flex justify-between items-center">
               <h3 class="text-sm font-bold">Приведи друга · +500 ₴</h3>
-              <button type="button" onclick="copyRef()" class="px-3 py-1.5 rounded-xl bg-[#0B1F3A] text-white text-xs font-bold">Копіювати</button>
+              <button type="button" onclick="copyRef()" class="px-3 py-1.5 rounded-xl bg-[#241618] text-amber-300 text-xs font-bold">Копіювати</button>
             </div>
-            <div id="ref-code" class="bg-slate-100 rounded-xl px-3 py-2 text-xs font-mono font-bold"></div>
+            <div id="ref-code" class="bg-stone-100 rounded-xl px-3 py-2 text-xs font-mono font-bold"></div>
           </div>
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 space-y-1">
-            <p><strong>Остання донація:</strong> <span id="stats-last-date"></span></p>
-            <p><strong>Заморозка серії:</strong> <span id="stats-freeze"></span></p>
+
+          <div class="bg-white rounded-2xl p-4 border border-stone-200 text-xs text-stone-600 flex justify-between">
+            <span>Остання донація: <strong id="stats-last-date" class="text-[#241618]"></strong></span>
+            <span>Заморозка: <strong id="stats-freeze" class="text-[#241618]"></strong></span>
           </div>
         </section>
 
+        <!-- 3. МЕРЧ І СПРАВЖНІ QR -->
         <section id="view-merch" class="hidden space-y-3">
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 flex justify-between items-center">
+          <div class="bg-white rounded-2xl p-4 border border-stone-200 flex justify-between items-center">
             <div>
-              <p class="text-xs text-slate-500">Ваш обсяг</p>
-              <p id="merch-ml" class="text-lg font-extrabold text-[#0B1F3A]"></p>
+              <p class="text-xs text-stone-500">Ваш обсяг</p>
+              <p id="merch-ml" class="text-lg font-extrabold text-[#241618]"></p>
             </div>
-            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Старт із 7-ї здачі</span>
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">Старт із 7-ї здачі</span>
           </div>
           <div id="merch-list" class="space-y-3"></div>
         </section>
+
+        <!-- 4. ПАНЕЛЬ МОДЕРАТОРА (ВИДНА ЛИШЕ ДЛЯ role=admin) -->
+        <section id="view-mod" class="hidden space-y-4">
+          <div class="bg-white rounded-3xl p-4 border border-amber-300 space-y-3">
+            <p class="text-xs font-extrabold uppercase text-[#991B1B]">Швидкі сценарії для показу керівництву</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setScenario(0,0,0)" class="py-2 px-2.5 rounded-xl bg-stone-100 text-xs font-bold">Новачок (0)</button>
+              <button type="button" onclick="setScenario(2,0,1300)" class="py-2 px-2.5 rounded-xl bg-stone-100 text-xs font-bold">Старт (2/3)</button>
+              <button type="button" onclick="setScenario(7,4,4550)" class="py-2 px-2.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold">Мерч (7 здач)</button>
+              <button type="button" onclick="setScenario(12,8,7800)" class="py-2 px-2.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold">Стеля 800 ₴</button>
+              <button type="button" onclick="setScenario(40,8,26000)" class="py-2 px-2.5 rounded-xl bg-rose-100 text-rose-900 text-xs font-bold col-span-2">Амбасадор · Худі (40 здач)</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-stone-100">
+              <button type="button" onclick="simDonate()" class="py-2.5 rounded-xl crimson text-white text-xs font-bold">+1 Донація (650 мл)</button>
+              <button type="button" onclick="simMiss()" class="py-2.5 rounded-xl bg-white border border-rose-300 text-[#991B1B] text-xs font-bold">Пропустити вікно</button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl p-4 border border-stone-200 space-y-2.5">
+            <p class="text-xs font-extrabold uppercase text-stone-500">Переглянути кабінет донора з бази:</p>
+            <div id="mod-donors-list" class="space-y-2"></div>
+          </div>
+        </section>
       </main>
 
-      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-slate-200 py-2.5 flex justify-around z-30 text-xs text-slate-400">
-        <button type="button" data-tab="home" onclick="switchTab('home')" class="tab active px-4 py-1">Головна</button>
-        <button type="button" data-tab="stats" onclick="switchTab('stats')" class="tab px-4 py-1">Статистика</button>
-        <button type="button" data-tab="merch" onclick="switchTab('merch')" class="tab px-4 py-1">Мерч</button>
+      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-stone-200 py-2.5 flex justify-around z-30 text-xs text-stone-400">
+        <button type="button" data-tab="home" onclick="switchTab('home')" class="tab active px-3 py-1">Головна</button>
+        <button type="button" data-tab="stats" onclick="switchTab('stats')" class="tab px-3 py-1">Вплив</button>
+        <button type="button" data-tab="merch" onclick="switchTab('merch')" class="tab px-3 py-1">Мерч</button>
+        <button type="button" id="tab-mod-btn" data-tab="mod" onclick="switchTab('mod')" class="tab hidden px-3 py-1 text-amber-700">Модератор</button>
       </nav>
     </div>
 
     <!-- МОДАЛКА ЗАПИСУ -->
-    <div id="modal-booking" class="hidden fixed inset-0 z-50 bg-[#0B1F3A]/60 flex items-end sm:items-center justify-center p-3">
+    <div id="modal-booking" class="hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full max-w-[400px] rounded-3xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center">
-          <h3 class="font-extrabold text-base text-[#0B1F3A]">Запис на донацію</h3>
-          <button type="button" onclick="closeBooking()" class="w-8 h-8 rounded-full bg-slate-100 font-bold text-slate-500">✕</button>
+          <h3 class="font-extrabold text-base text-[#241618]">Запис на донацію</h3>
+          <button type="button" onclick="closeBooking()" class="w-8 h-8 rounded-full bg-stone-100 font-bold text-stone-500">✕</button>
         </div>
         <div>
-          <label for="book-center" class="text-xs font-bold text-slate-600 block mb-1">Плазмацентр</label>
-          <select id="book-center" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-slate-50 font-semibold text-[#0B1F3A]">
+          <label for="book-center" class="text-xs font-bold text-stone-600 block mb-1">Плазмацентр</label>
+          <select id="book-center" class="w-full rounded-xl border border-stone-200 px-3 py-2.5 text-sm bg-stone-50 font-semibold">
             <option>Київ · БЦ «Лівобережний»</option>
             <option>Київ · м. Арсенальна</option>
             <option>Дніпро · пр. Б. Хмельницького</option>
@@ -173,24 +225,41 @@
           </select>
         </div>
         <div>
-          <p class="text-xs font-bold text-slate-600 mb-2">Доступні дати (інтервал 14 днів):</p>
+          <p class="text-xs font-bold text-stone-600 mb-2">Доступні дати (інтервал 14 днів):</p>
           <div id="date-slots" class="grid grid-cols-2 gap-2"></div>
         </div>
         <div>
-          <p class="text-xs font-bold text-slate-600 mb-2">Вільний час:</p>
+          <p class="text-xs font-bold text-stone-600 mb-2">Вільний час:</p>
           <div id="time-slots" class="grid grid-cols-3 gap-2"></div>
         </div>
-        <button type="button" onclick="confirmBooking()" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] text-white font-bold text-sm shadow">Підтвердити запис</button>
+        <button type="button" onclick="confirmBooking()" class="w-full py-3.5 rounded-2xl crimson text-white font-bold text-sm shadow">Підтвердити запис</button>
+      </div>
+    </div>
+
+    <!-- МОДАЛКА СПРАВЖНЬОГО QR-КОДУ МЕРЧУ -->
+    <div id="modal-qr" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-[360px] rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-extrabold uppercase text-amber-700">Справжній QR-ваучер</span>
+          <button type="button" onclick="closeQr()" class="w-8 h-8 rounded-full bg-stone-100 font-bold text-stone-500">✕</button>
+        </div>
+        <h3 id="qr-title" class="font-extrabold text-base text-[#241618]"></h3>
+        <div id="qr-container" class="flex justify-center p-3 bg-[#FAF7F5] rounded-2xl border border-amber-200"></div>
+        <p class="text-xs text-stone-500">Наведіть камеру телефону на QR — відкриється картка подарунка для ресепшена!</p>
+        <a id="qr-preview-link" href="#" target="_blank" class="block text-xs font-bold text-[#991B1B] underline">Або відкрити картинку мерчу прямо зараз</a>
+        <button type="button" onclick="markClaimed()" class="w-full py-3 rounded-2xl crimson text-white font-bold text-sm">Позначити як видано</button>
       </div>
     </div>
   </div>
 
   <script>
-    var CSV_URL = 'https://foxikisverytox.github.io/donor-plus/donors.csv';
+    var BASE_URL = 'https://foxikisverytox.github.io/donor-plus/';
+    var CSV_URL = BASE_URL + 'donors.csv';
     var FALLBACK_CSV =
-      'phone,name,donations,streak,ml,freeze,last_date,ref_code\n' +
-      '+380669949429,Паненко Софія,1,0,650,1,2026-11-23,SOFIIA-BP-26\n' +
-      '0689399254,Романюк Юрій,3,1,2150,1,2026-11-18,YURII-BP-26';
+      'phone,name,donations,streak,ml,freeze,last_date,ref_code,role\n' +
+      '+380669949429,Паненко Софія,1,0,650,1,2026-11-23,SOFIIA-BP-26,donor\n' +
+      '0689399254,Романюк Юрій,3,1,2150,1,2026-11-18,YURII-BP-26,donor\n' +
+      '0990000000,Модератор (Мій кабінет),7,4,4550,1,2026-11-10,MOD-BP-26,admin';
 
     var MERCH = [
       { id: 'm1', level: 'Старт', ml: 4550, visits: '7 здач', title: 'Фірмовий браслет або шкарпетки' },
@@ -203,8 +272,10 @@
 
     var db = [];
     var state = null;
+    var isAdminSession = false;
     var selectedDateIso = null;
     var selectedTime = null;
+    var activeQrId = null;
     var toastTimer = null;
 
     function normPhone(p) { return (p || '').replace(/\D/g, '').slice(-9); }
@@ -214,6 +285,30 @@
       el.textContent = msg; el.classList.remove('hidden');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(function() { el.classList.add('hidden'); }, 3200);
+    }
+
+    function getMerchSvg(id) {
+      if (id === 'm1') return '<svg viewBox="0 0 120 120" class="w-32 h-32"><circle cx="60" cy="60" r="40" fill="none" stroke="#991B1B" stroke-width="18"/><circle cx="60" cy="60" r="40" fill="none" stroke="#F59E0B" stroke-width="4" stroke-dasharray="14 10"/><text x="60" y="65" text-anchor="middle" font-size="14" font-weight="800" fill="#7F1D1D">Д+</text></svg>';
+      if (id === 'm2') return '<svg viewBox="0 0 120 120" class="w-32 h-32"><path d="M35 20 h22 v48 l16 14 c6 5 4 16-5 18 l-18 2 c-9 1-15-6-15-15 z" fill="#991B1B"/><rect x="35" y="30" width="22" height="7" fill="#F59E0B"/><rect x="35" y="43" width="22" height="7" fill="#F59E0B"/><path d="M72 32 h28 v56 h-28 z" rx="4" fill="#FDE68A" stroke="#991B1B" stroke-width="4"/><path d="M79 32 c0-12 14-12 14 0" fill="none" stroke="#991B1B" stroke-width="4"/></svg>';
+      if (id === 'm3') return '<svg viewBox="0 0 120 120" class="w-32 h-32"><rect x="36" y="28" width="48" height="72" rx="10" fill="#991B1B"/><rect x="32" y="20" width="56" height="12" rx="5" fill="#F59E0B"/><rect x="44" y="48" width="32" height="18" rx="4" fill="#FEF3C7"/><text x="60" y="61" text-anchor="middle" font-size="11" font-weight="800" fill="#7F1D1D">Д+</text></svg>';
+      if (id === 'm4') return '<svg viewBox="0 0 120 120" class="w-32 h-32"><path d="M36 28 L48 20 Q60 30 72 20 L84 28 L104 50 L90 62 L82 52 L82 100 L38 100 L38 52 L30 62 L16 50 Z" fill="#7F1D1D"/><path d="M46 22 Q60 36 74 22" fill="none" stroke="#F59E0B" stroke-width="4"/><text x="60" y="68" text-anchor="middle" font-size="16" font-weight="900" fill="#FCD34D">ДОНОР+</text></svg>';
+      return '<svg viewBox="0 0 120 120" class="w-32 h-32"><polygon points="60,14 74,44 106,48 82,70 88,102 60,86 32,102 38,70 14,48 46,44" fill="#F59E0B" stroke="#991B1B" stroke-width="5"/><text x="60" y="68" text-anchor="middle" font-size="16" font-weight="900" fill="#7F1D1D">VIP</text></svg>';
+    }
+
+    function checkVoucherMode() {
+      var params = new URLSearchParams(window.location.search);
+      var mId = params.get('merch');
+      if (!mId) return false;
+      var item = MERCH.find(function(m) { return m.id === mId; }) || MERCH[0];
+      var donorName = params.get('name') || 'Донор Biopharma Plasma';
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('app-main').classList.add('hidden');
+      document.getElementById('view-voucher').classList.remove('hidden');
+      document.getElementById('voucher-art').innerHTML = getMerchSvg(item.id);
+      document.getElementById('voucher-level').textContent = 'Рівень «' + item.level + '» · ' + fmt(item.ml) + ' мл';
+      document.getElementById('voucher-title').textContent = item.title;
+      document.getElementById('voucher-donor').textContent = 'Власник ваучера: ' + donorName;
+      return true;
     }
 
     function parseCSV(text) {
@@ -234,6 +329,7 @@
           freeze: parseInt(obj.freeze, 10) || 0,
           last_date: obj.last_date || '2026-11-10',
           ref_code: obj.ref_code || 'DONOR-BP-26',
+          role: (obj.role || 'donor').toLowerCase(),
           claimed: []
         };
       });
@@ -243,14 +339,14 @@
       var statusEl = document.getElementById('db-status');
       try {
         var res = await fetch(CSV_URL + '?t=' + Date.now());
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) throw new Error();
         var parsed = parseCSV(await res.text());
-        if (!parsed.length) throw new Error('empty');
+        if (!parsed.length) throw new Error();
         db = parsed;
-        if (statusEl) statusEl.textContent = 'База donors.csv підключена (' + db.length + ' донорів)';
+        if (statusEl) statusEl.textContent = 'База donors.csv підключена (' + db.length + ' профілів)';
       } catch (e) {
         db = parseCSV(FALLBACK_CSV);
-        if (statusEl) statusEl.textContent = 'Локальна база активна (' + db.length + ' донорів)';
+        if (statusEl) statusEl.textContent = 'Локальна база активна (' + db.length + ' профілів)';
       }
     }
 
@@ -272,6 +368,9 @@
     function render() {
       if (!state) return;
       document.getElementById('greeting').textContent = state.name + ' · ' + state.phone;
+      document.getElementById('mod-badge').classList.toggle('hidden', !isAdminSession);
+      document.getElementById('tab-mod-btn').classList.toggle('hidden', !isAdminSession);
+
       var np = nextPayout();
       document.getElementById('next-payout').textContent = fmt(np.sum) + ' ₴';
       document.getElementById('rate-badge').textContent = np.badge;
@@ -294,8 +393,8 @@
         document.getElementById('days-num').textContent = el.daysLeft;
         document.getElementById('days-caption').textContent = 'днів до';
         document.getElementById('window-pill').textContent = 'Доступно з ' + el.eligible.toLocaleDateString('uk-UA');
-        document.getElementById('window-pill').className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#1D5FB8]';
-        document.getElementById('window-text').textContent = 'Можна забронювати слот наперед на 14–15 день для бонусу +40 ₴.';
+        document.getElementById('window-pill').className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900';
+        document.getElementById('window-text').textContent = 'Забронюйте слот на 14–15 день для бонусу +40 ₴.';
       }
 
       var booking = null;
@@ -305,13 +404,12 @@
         document.getElementById('booking-summary').textContent = booking.dateLabel + ' о ' + booking.time;
         document.getElementById('booking-center-txt').textContent = booking.center;
         bCard.classList.remove('hidden');
-      } else {
-        bCard.classList.add('hidden');
-      }
+      } else { bCard.classList.add('hidden'); }
 
+      // Науковий розрахунок впливу
       document.getElementById('stats-ml').textContent = fmt(state.ml) + ' мл';
-      document.getElementById('stats-count').textContent = state.donations;
-      document.getElementById('stats-lives').textContent = state.donations * 2;
+      document.getElementById('stats-lives').textContent = Math.floor(state.ml / 220);
+      document.getElementById('stats-days-therapy').textContent = Math.round((state.donations / 130) * 365);
       document.getElementById('ref-code').textContent = state.ref_code;
       document.getElementById('stats-last-date').textContent = new Date(state.last_date + 'T00:00:00').toLocaleDateString('uk-UA');
       document.getElementById('stats-freeze').textContent = state.freeze > 0 ? '1 доступна' : 'Використано';
@@ -325,15 +423,23 @@
       document.getElementById('merch-list').innerHTML = MERCH.map(function(m) {
         var ok = state.ml >= m.ml, done = state.claimed.indexOf(m.id) !== -1;
         var p = Math.min(100, Math.round((state.ml / m.ml) * 100));
-        var btn = done ? '<span class="text-xs text-slate-400 font-bold">Отримано</span>'
-          : ok ? '<button type="button" onclick="claimMerch(\'' + m.id + '\')" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-bold">Отримати QR</button>'
-          : '<span class="text-[11px] text-slate-400">Ще ' + fmt(m.ml - state.ml) + ' мл</span>';
-        return '<div class="bg-white rounded-2xl p-4 border ' + (ok && !done ? 'border-amber-300' : 'border-slate-200') + ' space-y-2">' +
+        var btn = done ? '<span class="text-xs text-stone-400 font-bold">Видано</span>'
+          : ok ? '<button type="button" onclick="openQr(\'' + m.id + '\')" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-bold shadow-sm">QR-код</button>'
+          : '<span class="text-[11px] text-stone-400">Ще ' + fmt(m.ml - state.ml) + ' мл</span>';
+        return '<div class="bg-white rounded-2xl p-4 border ' + (ok && !done ? 'border-amber-400 ring-2 ring-amber-100' : 'border-stone-200') + ' space-y-2">' +
           '<div class="flex justify-between items-center gap-2">' +
-          '<div><span class="text-[10px] font-bold text-[#1D5FB8] uppercase">' + m.level + ' · ' + fmt(m.ml) + ' мл (' + m.visits + ')</span>' +
+          '<div><span class="text-[10px] font-bold text-[#991B1B] uppercase">' + m.level + ' · ' + fmt(m.ml) + ' мл (' + m.visits + ')</span>' +
           '<h4 class="text-sm font-bold">' + m.title + '</h4></div>' + btn + '</div>' +
-          '<div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ' + (ok ? 'bg-amber-500' : 'bg-[#1D5FB8]') + '" style="width:' + p + '%"></div></div></div>';
+          '<div class="w-full h-2 bg-stone-100 rounded-full overflow-hidden"><div class="h-full ' + (ok ? 'bg-amber-500' : 'bg-[#991B1B]') + '" style="width:' + p + '%"></div></div></div>';
       }).join('');
+
+      if (isAdminSession) {
+        document.getElementById('mod-donors-list').innerHTML = db.map(function(d) {
+          return '<button type="button" onclick="impersonate(\'' + d.phone + '\')" class="w-full p-3 rounded-2xl border border-stone-200 bg-[#FAF7F5] flex justify-between items-center text-left">' +
+            '<div><p class="text-xs font-bold text-[#241618]">' + d.name + '</p><p class="text-[11px] text-stone-500">' + d.phone + ' · ' + d.donations + ' здач · ' + fmt(d.ml) + ' мл</p></div>' +
+            '<span class="text-xs font-bold text-[#991B1B]">Відкрити →</span></button>';
+        }).join('');
+      }
     }
 
     async function handleLogin() {
@@ -344,47 +450,69 @@
     function loginByPhone(raw) {
       var target = normPhone(raw);
       var err = document.getElementById('login-error');
-      if (target.length < 9) {
-        err.textContent = 'Введіть коректний номер (10 цифр, наприклад 0669949429).';
-        err.classList.remove('hidden'); return;
-      }
+      if (target.length < 9) { err.textContent = 'Введіть коректний номер телефону (10 цифр).'; err.classList.remove('hidden'); return; }
       var found = db.find(function(d) { return normPhone(d.phone) === target; });
-      if (!found) {
-        err.textContent = 'Номер не знайдено в базі donors.csv!';
-        err.classList.remove('hidden'); return;
-      }
+      if (!found) { err.textContent = 'Номер не знайдено в базі donors.csv!'; err.classList.remove('hidden'); return; }
       err.classList.add('hidden');
       state = JSON.parse(JSON.stringify(found));
+      isAdminSession = (found.role === 'admin');
       try { localStorage.setItem('donor_phone', target); } catch (e) {}
       document.getElementById('view-login').classList.add('hidden');
       document.getElementById('app-main').classList.remove('hidden');
+      switchTab('home');
       render();
-      toast('Вітаємо, ' + state.name + '!');
+      toast(isAdminSession ? 'Увімкнено режим Модератора!' : 'Вітаємо, ' + state.name + '!');
+    }
+
+    function impersonate(phone) {
+      var found = db.find(function(d) { return normPhone(d.phone) === normPhone(phone); });
+      if (!found) return;
+      state = JSON.parse(JSON.stringify(found));
+      switchTab('home'); render();
+      toast('Перегляд профілю: ' + state.name);
+    }
+
+    function setScenario(don, strk, ml) {
+      state.donations = don; state.streak = strk; state.ml = ml; state.freeze = 1; state.claimed = [];
+      state.last_date = '2026-11-10';
+      switchTab('home'); render();
+      toast('Застосовано сценарій: ' + don + ' здач (' + fmt(ml) + ' мл)');
+    }
+
+    function openQr(id) {
+      var item = MERCH.find(function(m) { return m.id === id; });
+      if (!item) return;
+      activeQrId = id;
+      var voucherUrl = BASE_URL + '?merch=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(state.name);
+      document.getElementById('qr-title').textContent = item.title;
+      document.getElementById('qr-preview-link').href = voucherUrl;
+      var box = document.getElementById('qr-container');
+      box.innerHTML = '';
+      new QRCode(box, { text: voucherUrl, width: 180, height: 180, colorDark: '#7F1D1D', colorLight: '#FAF7F5' });
+      document.getElementById('modal-qr').classList.remove('hidden');
+    }
+    function closeQr() { document.getElementById('modal-qr').classList.add('hidden'); }
+    function markClaimed() {
+      if (activeQrId && state.claimed.indexOf(activeQrId) === -1) state.claimed.push(activeQrId);
+      closeQr(); render(); toast('Подарунок позначено як виданий!');
     }
 
     function logout() {
       try { localStorage.removeItem('donor_phone'); } catch (e) {}
-      state = null;
+      state = null; isAdminSession = false;
       document.getElementById('app-main').classList.add('hidden');
       document.getElementById('view-login').classList.remove('hidden');
     }
-
     async function syncDb() {
       var ph = state ? state.phone : null;
       await loadDatabase();
       if (ph) loginByPhone(ph);
       toast('Таблицю donors.csv оновлено!');
     }
-
     function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(function(x) {
-        x.classList.toggle('active', x.getAttribute('data-tab') === tab);
-      });
-      ['home', 'stats', 'merch'].forEach(function(v) {
-        document.getElementById('view-' + v).classList.toggle('hidden', v !== tab);
-      });
+      document.querySelectorAll('.tab').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-tab') === tab); });
+      ['home', 'stats', 'merch', 'mod'].forEach(function(v) { document.getElementById('view-' + v).classList.toggle('hidden', v !== tab); });
     }
-
     function openBooking() { renderBookingSlots(); document.getElementById('modal-booking').classList.remove('hidden'); }
     function closeBooking() { document.getElementById('modal-booking').classList.add('hidden'); }
     function pickDate(iso) { selectedDateIso = iso; renderBookingSlots(); }
@@ -393,52 +521,41 @@
     function renderBookingSlots() {
       var el = getEligibility();
       var start = el.eligible > el.today ? new Date(el.eligible) : new Date(el.today);
-      var dates = [];
-      var cur = new Date(start);
+      var dates = [], cur = new Date(start);
       while (dates.length < 4) {
         if (cur.getDay() !== 0) {
           var iso = cur.toISOString().split('T')[0];
           var dayDiff = Math.round((cur - el.eligible) / 86400000);
-          dates.push({
-            iso: iso,
-            label: cur.toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' }),
-            isBonus: dayDiff >= 0 && dayDiff <= 1
-          });
+          dates.push({ iso: iso, label: cur.toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' }), isBonus: dayDiff >= 0 && dayDiff <= 1 });
         }
         cur.setDate(cur.getDate() + 1);
       }
       if (!selectedDateIso || !dates.some(function(d) { return d.iso === selectedDateIso; })) selectedDateIso = dates[0].iso;
-
       document.getElementById('date-slots').innerHTML = dates.map(function(d) {
         var sel = selectedDateIso === d.iso;
-        return '<button type="button" onclick="pickDate(\'' + d.iso + '\')" class="p-2.5 rounded-2xl border text-left ' + (sel ? 'border-[#1D5FB8] bg-blue-50 ring-2 ring-blue-100' : 'border-slate-200 bg-white') + '">' +
-          '<div class="text-xs font-bold text-[#0B1F3A] capitalize">' + d.label + '</div>' +
-          '<div class="text-[10px] font-bold mt-0.5 ' + (d.isBonus ? 'text-amber-600' : 'text-slate-400') + '">' + (d.isBonus ? '★ Вчасно +40 ₴' : 'Стандарт') + '</div></button>';
+        return '<button type="button" onclick="pickDate(\'' + d.iso + '\')" class="p-2.5 rounded-2xl border text-left ' + (sel ? 'border-[#991B1B] bg-rose-50 ring-2 ring-rose-100' : 'border-stone-200 bg-white') + '">' +
+          '<div class="text-xs font-bold capitalize">' + d.label + '</div>' +
+          '<div class="text-[10px] font-bold mt-0.5 ' + (d.isBonus ? 'text-amber-600' : 'text-stone-400') + '">' + (d.isBonus ? '★ Вчасно +40 ₴' : 'Стандарт') + '</div></button>';
       }).join('');
-
       var busyIdx = selectedDateIso.charCodeAt(selectedDateIso.length - 1) % 3;
       var freeTimes = ALL_TIMES.filter(function(_, i) { return i !== busyIdx && i !== busyIdx + 3; });
       if (!selectedTime || freeTimes.indexOf(selectedTime) === -1) selectedTime = freeTimes[0];
-
       document.getElementById('time-slots').innerHTML = ALL_TIMES.map(function(t, i) {
-        if (i === busyIdx || i === busyIdx + 3) return '<button type="button" disabled class="py-2 rounded-xl bg-slate-100 text-slate-400 text-xs line-through">' + t + '</button>';
+        if (i === busyIdx || i === busyIdx + 3) return '<button type="button" disabled class="py-2 rounded-xl bg-stone-100 text-stone-400 text-xs line-through">' + t + '</button>';
         var act = selectedTime === t;
-        return '<button type="button" onclick="pickTime(\'' + t + '\')" class="py-2 rounded-xl border text-xs font-bold ' + (act ? 'bg-[#1D5FB8] text-white border-[#1D5FB8]' : 'bg-white text-[#0B1F3A] border-slate-200') + '">' + t + '</button>';
+        return '<button type="button" onclick="pickTime(\'' + t + '\')" class="py-2 rounded-xl border text-xs font-bold ' + (act ? 'crimson text-white border-[#991B1B]' : 'bg-white border-stone-200') + '">' + t + '</button>';
       }).join('');
     }
-
     function confirmBooking() {
       var center = document.getElementById('book-center').value;
       var dateLabel = new Date(selectedDateIso + 'T00:00:00').toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' });
       try { localStorage.setItem('booking_' + normPhone(state.phone), JSON.stringify({ dateLabel: dateLabel, time: selectedTime, center: center })); } catch (e) {}
       closeBooking(); render(); toast('Записано на ' + dateLabel + ' о ' + selectedTime + '!');
     }
-
     function cancelBooking() {
       try { localStorage.removeItem('booking_' + normPhone(state.phone)); } catch (e) {}
       render(); toast('Запис скасовано.');
     }
-
     function simDonate() {
       var prev = state.ml, np = nextPayout();
       state.donations++; state.ml += 650;
@@ -448,29 +565,22 @@
       var unlocked = MERCH.find(function(m) { return prev < m.ml && state.ml >= m.ml; });
       toast(unlocked ? 'Відкрито мерч: ' + unlocked.title + '!' : 'Донацію #' + state.donations + ' зараховано (+' + fmt(np.sum) + ' ₴)');
     }
-
     function simMiss() {
       if (state.donations < 3 || state.streak === 0) return toast('Ставка на старті або базі 500 ₴');
-      if (state.freeze > 0) { state.freeze--; toast('Спрацювала «Заморозка серії»! Ставку збережено.'); }
+      if (state.freeze > 0) { state.freeze--; toast('Спрацювала «Заморозка серії»!'); }
       else { state.streak = 0; toast('Вікно пропущено — ставка повернулась до 500 ₴.'); }
       render();
     }
-
     function copyRef() {
       if (navigator.clipboard) navigator.clipboard.writeText(state.ref_code).catch(function() {});
       toast('Код ' + state.ref_code + ' скопійовано!');
     }
 
-    function claimMerch(id) {
-      state.claimed.push(id); render(); toast('QR-ваучер показано ресепшену — мерч видано!');
-    }
-
-    document.getElementById('phone-input').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleLogin();
-    });
+    document.getElementById('phone-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
 
     (async function() {
       try { if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } } catch (e) {}
+      if (checkVoucherMode()) return;
       await loadDatabase();
       try {
         var saved = localStorage.getItem('donor_phone');
