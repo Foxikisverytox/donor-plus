@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Донор+ · Biopharma Plasma</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #E8EFF8; color: #132238; }
+    .shell { max-width: 430px; min-height: 100vh; margin: 0 auto; background: #F4F7FC; display: flex; flex-direction: column; }
+    .navy { background: linear-gradient(145deg, #0B1F3A 0%, #143666 100%); }
+    .tab.active { color: #1D5FB8; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="shell shadow-xl relative">
+    <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[390px] bg-[#0B1F3A] text-white px-4 py-3 rounded-2xl shadow-lg text-xs font-medium text-center"></div>
+
+    <header class="px-5 py-3.5 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-20">
+      <div>
+        <span class="font-extrabold text-base text-[#0B1F3A]">Донор+</span>
+        <span class="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-[#1D5FB8]">MVP</span>
+        <p id="greeting" class="text-xs text-slate-500">Вітаємо, Доноре</p>
+      </div>
+      <button id="btn-reset" class="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200">Скинути на 0</button>
+    </header>
+
+    <main class="flex-1 p-4 pb-24 space-y-4">
+      <!-- ЕКРАН 1: ГОЛОВНА -->
+      <section id="view-home" class="space-y-4">
+        <div class="navy rounded-3xl p-5 text-white shadow-lg">
+          <div class="flex justify-between items-start">
+            <div>
+              <p id="stage-label" class="text-xs uppercase tracking-wider text-blue-200">Наступна виплата</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span id="next-payout" class="text-4xl font-extrabold">540 ₴</span>
+                <span id="rate-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300">+40 ₴</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] text-blue-200 block">Здач</span>
+              <span id="hero-count" class="text-xl font-bold">4</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10">
+            <div class="flex justify-between text-xs mb-1.5">
+              <span id="prog-label" class="text-blue-100">Прогрес до стелі 800 ₴</span>
+              <span id="prog-pct" class="font-bold text-amber-300">13%</span>
+            </div>
+            <div class="w-full h-2 bg-white/15 rounded-full overflow-hidden">
+              <div id="prog-bar" class="h-full bg-amber-400 rounded-full transition-all duration-500" style="width:13%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 flex items-center gap-4">
+          <div class="w-20 h-20 rounded-full border-[7px] border-[#1D5FB8] flex flex-col items-center justify-center shrink-0">
+            <span class="text-xl font-extrabold text-[#0B1F3A] leading-none">14</span>
+            <span class="text-[10px] text-slate-500">днів</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Вікно «Вчасно» відкрито</span>
+            <p class="text-xs text-slate-600 mt-1.5">Запишіться на 14–15 день, щоб додати +40 ₴ до ставки.</p>
+          </div>
+        </div>
+
+        <button id="btn-book" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] text-white font-bold text-sm shadow">Записатися на донацію в 1 клік</button>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-3xl p-4 space-y-2.5">
+          <p class="text-xs font-extrabold text-amber-900 uppercase">Демо-режим для керівництва</p>
+          <p class="text-[11px] text-amber-900/80">Клікайте, щоб показати схему 1000×3 → 500…800 ₴ і відкриття мерчу на 7-й здачі.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-donate" class="py-2.5 px-3 rounded-xl bg-amber-600 text-white font-bold text-xs">+ Донація (650 мл)</button>
+            <button id="btn-miss" class="py-2.5 px-3 rounded-xl bg-white text-amber-900 border border-amber-300 font-bold text-xs">Пропустити вікно</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ЕКРАН 2: СТАТИСТИКА -->
+      <section id="view-stats" class="hidden space-y-4">
+        <div class="navy rounded-3xl p-6 text-white text-center shadow-lg">
+          <p class="text-xs uppercase text-blue-200">Здано плазми за весь час</p>
+          <div class="text-4xl font-extrabold text-amber-400 my-3" id="stats-ml">2 600 мл</div>
+          <p id="stats-hint" class="text-xs text-blue-100"></p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
+            <span id="stats-count" class="text-2xl font-extrabold text-[#0B1F3A] block">4</span>
+            <span class="text-xs text-slate-500">Донацій</span>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
+            <span id="stats-lives" class="text-2xl font-extrabold text-amber-600 block">8</span>
+            <span class="text-xs text-slate-500">Врятовано життів*</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold">Приведи друга · +500 ₴</h3>
+            <button id="btn-copy" class="px-3 py-1.5 rounded-xl bg-[#0B1F3A] text-white text-xs font-bold">Копіювати код</button>
+          </div>
+          <div class="bg-slate-100 rounded-xl px-3 py-2 text-xs font-mono font-bold">DONOR-BP-2026</div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200">
+          <div class="flex justify-between mb-2">
+            <h3 class="text-sm font-bold">Історія</h3>
+            <span id="stats-earned" class="text-xs font-bold text-[#1D5FB8]"></span>
+          </div>
+          <div id="history-list" class="space-y-2 text-xs"></div>
+        </div>
+      </section>
+
+      <!-- ЕКРАН 3: МЕРЧ -->
+      <section id="view-merch" class="hidden space-y-3">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-slate-500">Ваш обсяг</p>
+            <p id="merch-ml" class="text-lg font-extrabold text-[#0B1F3A]"></p>
+          </div>
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Старт із 7-ї здачі</span>
+        </div>
+        <div id="merch-list" class="space-y-3"></div>
+      </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-slate-200 py-2.5 flex justify-around z-30 text-xs text-slate-400">
+      <button data-tab="home" class="tab active px-4 py-1">Головна</button>
+      <button data-tab="stats" class="tab px-4 py-1">Статистика</button>
+      <button data-tab="merch" class="tab px-4 py-1">Мерч</button>
+    </nav>
+  </div>
+
+  <script>
+    const MERCH = [
+      { id: 'm1', level: 'Старт', ml: 4550, visits: '7 здач', title: 'Фірмовий браслет або шкарпетки' },
+      { id: 'm2', level: 'Активний', ml: 10000, visits: '~15 здач', title: 'Брендовані шкарпетки + еко-шопер' },
+      { id: 'm3', level: 'Постійний', ml: 16000, visits: '~25 здач', title: 'Термокружка або пауербанк' },
+      { id: 'm4', level: 'Амбасадор', ml: 26000, visits: '~40 здач', title: 'Лімітоване худі «Донор+»' },
+      { id: 'm5', level: 'Почесний', ml: 40000, visits: '~60+ здач', title: 'VIP-набір + пріоритетний запис' }
+    ];
+
+    let state = {
+      donations: 4, streak: 1, ml: 2600, freeze: 1, claimed: [],
+      history: [
+        { n: 4, ml: 650, sum: 500, tag: 'База' },
+        { n: 3, ml: 650, sum: 1000, tag: 'Старт 3/3' },
+        { n: 2, ml: 650, sum: 1000, tag: 'Старт 2/3' },
+        { n: 1, ml: 650, sum: 1000, tag: 'Старт 1/3' }
+      ]
+    };
+
+    const fmt = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    function nextPayout() {
+      if (state.donations < 3) return { sum: 1000, starter: true, badge: `Старт ${state.donations + 1}/3` };
+      const sum = Math.min(800, 500 + state.streak * 40);
+      return { sum, starter: false, badge: sum >= 800 ? 'Стеля 800 ₴' : (state.streak ? `+${state.streak * 40} ₴` : 'База') };
+    }
+
+    function render() {
+      const np = nextPayout();
+      document.getElementById('next-payout').textContent = `${fmt(np.sum)} ₴`;
+      document.getElementById('rate-badge').textContent = np.badge;
+      document.getElementById('hero-count').textContent = state.donations;
+      const pct = np.starter ? Math.round((state.donations / 3) * 100) : Math.min(100, Math.round(((np.sum - 500) / 300) * 100));
+      document.getElementById('stage-label').textContent = np.starter ? 'Стартова програма новачків' : 'Наступна виплата';
+      document.getElementById('prog-label').textContent = np.starter ? `Старт: ${state.donations} з 3 візитів` : 'Прогрес до стелі 800 ₴';
+      document.getElementById('prog-pct').textContent = `${pct}%`;
+      document.getElementById('prog-bar').style.width = `${Math.max(8, pct)}%`;
+
+      document.getElementById('stats-ml').textContent = `${fmt(state.ml)} мл`;
+      document.getElementById('stats-count').textContent = state.donations;
+      document.getElementById('stats-lives').textContent = state.donations * 2;
+      const nextM = MERCH.find(m => state.ml < m.ml);
+      document.getElementById('stats-hint').textContent = nextM
+        ? `До рівня «${nextM.level}» (${fmt(nextM.ml)} мл) залишилось ${fmt(nextM.ml - state.ml)} мл`
+        : 'Усі рівні мерчу відкрито!';
+      document.getElementById('stats-earned').textContent = `Всього: ${fmt(state.history.reduce((s, h) => s + h.sum, 0))} ₴`;
+      document.getElementById('history-list').innerHTML = state.history.map(h =>
+        `<div class="flex justify-between py-1.5 border-b border-slate-100"><span>#${h.n} · ${h.ml} мл (${h.tag})</span><strong class="text-emerald-600">+${fmt(h.sum)} ₴</strong></div>`
+      ).join('') || '<p class="text-slate-400">Поки немає донацій</p>';
+
+      document.getElementById('merch-ml').textContent = `${fmt(state.ml)} мл (${state.donations} здач)`;
+      document.getElementById('merch-list').innerHTML = MERCH.map(m => {
+        const ok = state.ml >= m.ml, done = state.claimed.includes(m.id);
+        const p = Math.min(100, Math.round((state.ml / m.ml) * 100));
+        const btn = done ? '<span class="text-xs text-slate-400 font-bold">Отримано</span>'
+          : ok ? `<button data-claim="${m.id}" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-bold">Отримати QR</button>`
+          : `<span class="text-[11px] text-slate-400">Ще ${fmt(m.ml - state.ml)} мл</span>`;
+        return `<div class="bg-white rounded-2xl p-4 border ${ok && !done ? 'border-amber-300' : 'border-slate-200'} space-y-2">
+          <div class="flex justify-between items-center gap-2">
+            <div><span class="text-[10px] font-bold text-[#1D5FB8] uppercase">${m.level} · ${fmt(m.ml)} мл (${m.visits})</span>
+            <h4 class="text-sm font-bold">${m.title}</h4></div>${btn}
+          </div>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${ok ? 'bg-amber-500' : 'bg-[#1D5FB8]'}" style="width:${p}%"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      ['home', 'stats', 'merch'].forEach(v => document.getElementById('view-' + v).classList.toggle('hidden', v !== b.dataset.tab));
+    }));
+
+    document.getElementById('btn-donate').addEventListener('click', () => {
+      const prev = state.ml, np = nextPayout();
+      state.donations++; state.ml += 650;
+      if (!np.starter) state.streak++;
+      state.history.unshift({ n: state.donations, ml: 650, sum: np.sum, tag: np.starter ? `Старт ${state.donations}/3` : np.badge });
+      render();
+      const unlocked = MERCH.find(m => prev < m.ml && state.ml >= m.ml);
+      toast(unlocked ? `Відкрито мерч: ${unlocked.title}!` : `Донацію #${state.donations} зараховано (+${fmt(np.sum)} ₴)`);
+    });
+
+    document.getElementById('btn-miss').addEventListener('click', () => {
+      if (state.donations < 3 || state.streak === 0) return toast('Ставка на старті або базі 500 ₴');
+      if (state.freeze > 0) { state.freeze--; toast('Спрацювала «Заморозка серії»! Ставку збережено.'); }
+      else { state.streak = 0; toast('Вікно пропущено — ставка повернулась до 500 ₴.'); }
+      render();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state = { donations: 0, streak: 0, ml: 0, freeze: 1, claimed: [], history: [] };
+      render(); toast('Скинуто на Новачка (1000+1000+1000 ₴)');
+    });
+
+    document.getElementById('btn-book').addEventListener('click', () => toast('Запис підтверджено! Нагадування в Telegram увімкнено.'));
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      navigator.clipboard?.writeText('DONOR-BP-2026').catch(() => {});
+      toast('Код DONOR-BP-2026 скопійовано!');
+    });
+    document.getElementById('merch-list').addEventListener('click', e => {
+      const btn = e.target.closest('[data-claim]');
+      if (!btn) return;
+      state.claimed.push(btn.dataset.claim);
+      render(); toast('QR-ваучер показано ресепшену — мерч видано!');
+    });
+
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (tg) { tg.ready(); tg.expand(); if (tg.initDataUnsafe?.user?.first_name) document.getElementById('greeting').textContent = `Вітаємо, ${tg.initDataUnsafe.user.first_name}`; }
+    } catch (e) {}
+    render();
+  </script>
+</body>
+</html>
