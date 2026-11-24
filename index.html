@@ -98,5 +98,385 @@
 
           <button type="button" onclick="openBooking()" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] text-white font-bold text-sm shadow">Обрати дату та час донації</button>
 
-          <div class="bg-amber-50 border border-
-            
+          <div class="bg-amber-50 border border-amber-200 rounded-3xl p-4 space-y-2.5">
+            <p class="text-xs font-extrabold text-amber-900 uppercase">Локальна симуляція (для тесту)</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="simDonate()" class="py-2.5 px-3 rounded-xl bg-amber-600 text-white font-bold text-xs">+ Донація (650 мл)</button>
+              <button type="button" onclick="simMiss()" class="py-2.5 px-3 rounded-xl bg-white text-amber-900 border border-amber-300 font-bold text-xs">Пропустити вікно</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-stats" class="hidden space-y-4">
+          <div class="navy rounded-3xl p-6 text-white text-center shadow-lg">
+            <p class="text-xs uppercase text-blue-200">Здано плазми за весь час</p>
+            <div class="text-4xl font-extrabold text-amber-400 my-3" id="stats-ml">0 мл</div>
+            <p id="stats-hint" class="text-xs text-blue-100"></p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
+              <span id="stats-count" class="text-2xl font-extrabold text-[#0B1F3A] block">0</span>
+              <span class="text-xs text-slate-500">Донацій</span>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 text-center">
+              <span id="stats-lives" class="text-2xl font-extrabold text-amber-600 block">0</span>
+              <span class="text-xs text-slate-500">Врятовано життів*</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold">Приведи друга · +500 ₴</h3>
+              <button type="button" onclick="copyRef()" class="px-3 py-1.5 rounded-xl bg-[#0B1F3A] text-white text-xs font-bold">Копіювати</button>
+            </div>
+            <div id="ref-code" class="bg-slate-100 rounded-xl px-3 py-2 text-xs font-mono font-bold"></div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 space-y-1">
+            <p><strong>Остання донація:</strong> <span id="stats-last-date"></span></p>
+            <p><strong>Заморозка серії:</strong> <span id="stats-freeze"></span></p>
+          </div>
+        </section>
+
+        <section id="view-merch" class="hidden space-y-3">
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 flex justify-between items-center">
+            <div>
+              <p class="text-xs text-slate-500">Ваш обсяг</p>
+              <p id="merch-ml" class="text-lg font-extrabold text-[#0B1F3A]"></p>
+            </div>
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Старт із 7-ї здачі</span>
+          </div>
+          <div id="merch-list" class="space-y-3"></div>
+        </section>
+      </main>
+
+      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-slate-200 py-2.5 flex justify-around z-30 text-xs text-slate-400">
+        <button type="button" data-tab="home" onclick="switchTab('home')" class="tab active px-4 py-1">Головна</button>
+        <button type="button" data-tab="stats" onclick="switchTab('stats')" class="tab px-4 py-1">Статистика</button>
+        <button type="button" data-tab="merch" onclick="switchTab('merch')" class="tab px-4 py-1">Мерч</button>
+      </nav>
+    </div>
+
+    <!-- МОДАЛКА ЗАПИСУ -->
+    <div id="modal-booking" class="hidden fixed inset-0 z-50 bg-[#0B1F3A]/60 flex items-end sm:items-center justify-center p-3">
+      <div class="bg-white w-full max-w-[400px] rounded-3xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center">
+          <h3 class="font-extrabold text-base text-[#0B1F3A]">Запис на донацію</h3>
+          <button type="button" onclick="closeBooking()" class="w-8 h-8 rounded-full bg-slate-100 font-bold text-slate-500">✕</button>
+        </div>
+        <div>
+          <label for="book-center" class="text-xs font-bold text-slate-600 block mb-1">Плазмацентр</label>
+          <select id="book-center" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-slate-50 font-semibold text-[#0B1F3A]">
+            <option>Київ · БЦ «Лівобережний»</option>
+            <option>Київ · м. Арсенальна</option>
+            <option>Дніпро · пр. Б. Хмельницького</option>
+            <option>Львів · Biopharma Plasma</option>
+            <option>Харків · Unit.City</option>
+          </select>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-600 mb-2">Доступні дати (інтервал 14 днів):</p>
+          <div id="date-slots" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-600 mb-2">Вільний час:</p>
+          <div id="time-slots" class="grid grid-cols-3 gap-2"></div>
+        </div>
+        <button type="button" onclick="confirmBooking()" class="w-full py-3.5 rounded-2xl bg-[#1D5FB8] text-white font-bold text-sm shadow">Підтвердити запис</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var CSV_URL = 'https://foxikisverytox.github.io/donor-plus/donors.csv';
+    var FALLBACK_CSV =
+      'phone,name,donations,streak,ml,freeze,last_date,ref_code\n' +
+      '+380669949429,Паненко Софія,1,0,650,1,2026-11-23,SOFIIA-BP-26\n' +
+      '0689399254,Романюк Юрій,3,1,2150,1,2026-11-18,YURII-BP-26';
+
+    var MERCH = [
+      { id: 'm1', level: 'Старт', ml: 4550, visits: '7 здач', title: 'Фірмовий браслет або шкарпетки' },
+      { id: 'm2', level: 'Активний', ml: 10000, visits: '~15 здач', title: 'Брендовані шкарпетки + еко-шопер' },
+      { id: 'm3', level: 'Постійний', ml: 16000, visits: '~25 здач', title: 'Термокружка або пауербанк' },
+      { id: 'm4', level: 'Амбасадор', ml: 26000, visits: '~40 здач', title: 'Лімітоване худі «Донор+»' },
+      { id: 'm5', level: 'Почесний', ml: 40000, visits: '~60+ здач', title: 'VIP-набір + пріоритетний запис' }
+    ];
+    var ALL_TIMES = ['08:30', '09:30', '10:30', '11:30', '13:00', '14:00', '15:00'];
+
+    var db = [];
+    var state = null;
+    var selectedDateIso = null;
+    var selectedTime = null;
+    var toastTimer = null;
+
+    function normPhone(p) { return (p || '').replace(/\D/g, '').slice(-9); }
+    function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+    function toast(msg) {
+      var el = document.getElementById('toast');
+      el.textContent = msg; el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { el.classList.add('hidden'); }, 3200);
+    }
+
+    function parseCSV(text) {
+      var lines = text.trim().split(/\r?\n/).filter(function(l) { return l.trim().length > 0; });
+      if (lines.length < 2) return [];
+      var sep = lines[0].indexOf(';') !== -1 ? ';' : ',';
+      var headers = lines[0].split(sep).map(function(h) { return h.trim().toLowerCase(); });
+      return lines.slice(1).map(function(line) {
+        var vals = line.split(sep).map(function(v) { return v.trim(); });
+        var obj = {};
+        headers.forEach(function(h, i) { obj[h] = vals[i] || ''; });
+        return {
+          phone: obj.phone || '',
+          name: obj.name || 'Донор',
+          donations: parseInt(obj.donations, 10) || 0,
+          streak: parseInt(obj.streak, 10) || 0,
+          ml: parseInt(obj.ml, 10) || 0,
+          freeze: parseInt(obj.freeze, 10) || 0,
+          last_date: obj.last_date || '2026-11-10',
+          ref_code: obj.ref_code || 'DONOR-BP-26',
+          claimed: []
+        };
+      });
+    }
+
+    async function loadDatabase() {
+      var statusEl = document.getElementById('db-status');
+      try {
+        var res = await fetch(CSV_URL + '?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var parsed = parseCSV(await res.text());
+        if (!parsed.length) throw new Error('empty');
+        db = parsed;
+        if (statusEl) statusEl.textContent = 'База donors.csv підключена (' + db.length + ' донорів)';
+      } catch (e) {
+        db = parseCSV(FALLBACK_CSV);
+        if (statusEl) statusEl.textContent = 'Локальна база активна (' + db.length + ' донорів)';
+      }
+    }
+
+    function getEligibility() {
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var last = new Date((state.last_date || '2026-11-10') + 'T00:00:00');
+      var eligible = new Date(last.getTime() + 14 * 86400000);
+      var diffDays = Math.ceil((eligible - today) / 86400000);
+      return { today: today, last: last, eligible: eligible, daysLeft: Math.max(0, diffDays) };
+    }
+
+    function nextPayout() {
+      if (state.donations < 3) return { sum: 1000, starter: true, badge: 'Старт ' + (state.donations + 1) + '/3' };
+      var sum = Math.min(800, 500 + state.streak * 40);
+      var badge = sum >= 800 ? 'Стеля 800 ₴' : (state.streak ? '+' + (state.streak * 40) + ' ₴' : 'База');
+      return { sum: sum, starter: false, badge: badge };
+    }
+
+    function render() {
+      if (!state) return;
+      document.getElementById('greeting').textContent = state.name + ' · ' + state.phone;
+      var np = nextPayout();
+      document.getElementById('next-payout').textContent = fmt(np.sum) + ' ₴';
+      document.getElementById('rate-badge').textContent = np.badge;
+      document.getElementById('hero-count').textContent = state.donations;
+
+      var pct = np.starter ? Math.round((state.donations / 3) * 100) : Math.min(100, Math.round(((np.sum - 500) / 300) * 100));
+      document.getElementById('stage-label').textContent = np.starter ? 'Стартова програма новачків' : 'Наступна виплата';
+      document.getElementById('prog-label').textContent = np.starter ? 'Старт: ' + state.donations + ' з 3 візитів' : 'Прогрес до стелі 800 ₴';
+      document.getElementById('prog-pct').textContent = pct + '%';
+      document.getElementById('prog-bar').style.width = Math.max(8, pct) + '%';
+
+      var el = getEligibility();
+      if (el.daysLeft === 0) {
+        document.getElementById('days-num').textContent = '✓';
+        document.getElementById('days-caption').textContent = 'можна';
+        document.getElementById('window-pill').textContent = 'Вікно «Вчасно» відкрито!';
+        document.getElementById('window-pill').className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700';
+        document.getElementById('window-text').textContent = 'Минуло 14+ днів — обирайте зручний час і записуйтесь.';
+      } else {
+        document.getElementById('days-num').textContent = el.daysLeft;
+        document.getElementById('days-caption').textContent = 'днів до';
+        document.getElementById('window-pill').textContent = 'Доступно з ' + el.eligible.toLocaleDateString('uk-UA');
+        document.getElementById('window-pill').className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#1D5FB8]';
+        document.getElementById('window-text').textContent = 'Можна забронювати слот наперед на 14–15 день для бонусу +40 ₴.';
+      }
+
+      var booking = null;
+      try { booking = JSON.parse(localStorage.getItem('booking_' + normPhone(state.phone))); } catch (e) {}
+      var bCard = document.getElementById('active-booking-card');
+      if (booking) {
+        document.getElementById('booking-summary').textContent = booking.dateLabel + ' о ' + booking.time;
+        document.getElementById('booking-center-txt').textContent = booking.center;
+        bCard.classList.remove('hidden');
+      } else {
+        bCard.classList.add('hidden');
+      }
+
+      document.getElementById('stats-ml').textContent = fmt(state.ml) + ' мл';
+      document.getElementById('stats-count').textContent = state.donations;
+      document.getElementById('stats-lives').textContent = state.donations * 2;
+      document.getElementById('ref-code').textContent = state.ref_code;
+      document.getElementById('stats-last-date').textContent = new Date(state.last_date + 'T00:00:00').toLocaleDateString('uk-UA');
+      document.getElementById('stats-freeze').textContent = state.freeze > 0 ? '1 доступна' : 'Використано';
+
+      var nextM = MERCH.find(function(m) { return state.ml < m.ml; });
+      document.getElementById('stats-hint').textContent = nextM
+        ? 'До рівня «' + nextM.level + '» (' + fmt(nextM.ml) + ' мл) залишилось ' + fmt(nextM.ml - state.ml) + ' мл'
+        : 'Усі рівні мерчу відкрито!';
+
+      document.getElementById('merch-ml').textContent = fmt(state.ml) + ' мл (' + state.donations + ' здач)';
+      document.getElementById('merch-list').innerHTML = MERCH.map(function(m) {
+        var ok = state.ml >= m.ml, done = state.claimed.indexOf(m.id) !== -1;
+        var p = Math.min(100, Math.round((state.ml / m.ml) * 100));
+        var btn = done ? '<span class="text-xs text-slate-400 font-bold">Отримано</span>'
+          : ok ? '<button type="button" onclick="claimMerch(\'' + m.id + '\')" class="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-bold">Отримати QR</button>'
+          : '<span class="text-[11px] text-slate-400">Ще ' + fmt(m.ml - state.ml) + ' мл</span>';
+        return '<div class="bg-white rounded-2xl p-4 border ' + (ok && !done ? 'border-amber-300' : 'border-slate-200') + ' space-y-2">' +
+          '<div class="flex justify-between items-center gap-2">' +
+          '<div><span class="text-[10px] font-bold text-[#1D5FB8] uppercase">' + m.level + ' · ' + fmt(m.ml) + ' мл (' + m.visits + ')</span>' +
+          '<h4 class="text-sm font-bold">' + m.title + '</h4></div>' + btn + '</div>' +
+          '<div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ' + (ok ? 'bg-amber-500' : 'bg-[#1D5FB8]') + '" style="width:' + p + '%"></div></div></div>';
+      }).join('');
+    }
+
+    async function handleLogin() {
+      if (!db.length) await loadDatabase();
+      loginByPhone(document.getElementById('phone-input').value);
+    }
+
+    function loginByPhone(raw) {
+      var target = normPhone(raw);
+      var err = document.getElementById('login-error');
+      if (target.length < 9) {
+        err.textContent = 'Введіть коректний номер (10 цифр, наприклад 0669949429).';
+        err.classList.remove('hidden'); return;
+      }
+      var found = db.find(function(d) { return normPhone(d.phone) === target; });
+      if (!found) {
+        err.textContent = 'Номер не знайдено в базі donors.csv!';
+        err.classList.remove('hidden'); return;
+      }
+      err.classList.add('hidden');
+      state = JSON.parse(JSON.stringify(found));
+      try { localStorage.setItem('donor_phone', target); } catch (e) {}
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('app-main').classList.remove('hidden');
+      render();
+      toast('Вітаємо, ' + state.name + '!');
+    }
+
+    function logout() {
+      try { localStorage.removeItem('donor_phone'); } catch (e) {}
+      state = null;
+      document.getElementById('app-main').classList.add('hidden');
+      document.getElementById('view-login').classList.remove('hidden');
+    }
+
+    async function syncDb() {
+      var ph = state ? state.phone : null;
+      await loadDatabase();
+      if (ph) loginByPhone(ph);
+      toast('Таблицю donors.csv оновлено!');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(function(x) {
+        x.classList.toggle('active', x.getAttribute('data-tab') === tab);
+      });
+      ['home', 'stats', 'merch'].forEach(function(v) {
+        document.getElementById('view-' + v).classList.toggle('hidden', v !== tab);
+      });
+    }
+
+    function openBooking() { renderBookingSlots(); document.getElementById('modal-booking').classList.remove('hidden'); }
+    function closeBooking() { document.getElementById('modal-booking').classList.add('hidden'); }
+    function pickDate(iso) { selectedDateIso = iso; renderBookingSlots(); }
+    function pickTime(t) { selectedTime = t; renderBookingSlots(); }
+
+    function renderBookingSlots() {
+      var el = getEligibility();
+      var start = el.eligible > el.today ? new Date(el.eligible) : new Date(el.today);
+      var dates = [];
+      var cur = new Date(start);
+      while (dates.length < 4) {
+        if (cur.getDay() !== 0) {
+          var iso = cur.toISOString().split('T')[0];
+          var dayDiff = Math.round((cur - el.eligible) / 86400000);
+          dates.push({
+            iso: iso,
+            label: cur.toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' }),
+            isBonus: dayDiff >= 0 && dayDiff <= 1
+          });
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      if (!selectedDateIso || !dates.some(function(d) { return d.iso === selectedDateIso; })) selectedDateIso = dates[0].iso;
+
+      document.getElementById('date-slots').innerHTML = dates.map(function(d) {
+        var sel = selectedDateIso === d.iso;
+        return '<button type="button" onclick="pickDate(\'' + d.iso + '\')" class="p-2.5 rounded-2xl border text-left ' + (sel ? 'border-[#1D5FB8] bg-blue-50 ring-2 ring-blue-100' : 'border-slate-200 bg-white') + '">' +
+          '<div class="text-xs font-bold text-[#0B1F3A] capitalize">' + d.label + '</div>' +
+          '<div class="text-[10px] font-bold mt-0.5 ' + (d.isBonus ? 'text-amber-600' : 'text-slate-400') + '">' + (d.isBonus ? '★ Вчасно +40 ₴' : 'Стандарт') + '</div></button>';
+      }).join('');
+
+      var busyIdx = selectedDateIso.charCodeAt(selectedDateIso.length - 1) % 3;
+      var freeTimes = ALL_TIMES.filter(function(_, i) { return i !== busyIdx && i !== busyIdx + 3; });
+      if (!selectedTime || freeTimes.indexOf(selectedTime) === -1) selectedTime = freeTimes[0];
+
+      document.getElementById('time-slots').innerHTML = ALL_TIMES.map(function(t, i) {
+        if (i === busyIdx || i === busyIdx + 3) return '<button type="button" disabled class="py-2 rounded-xl bg-slate-100 text-slate-400 text-xs line-through">' + t + '</button>';
+        var act = selectedTime === t;
+        return '<button type="button" onclick="pickTime(\'' + t + '\')" class="py-2 rounded-xl border text-xs font-bold ' + (act ? 'bg-[#1D5FB8] text-white border-[#1D5FB8]' : 'bg-white text-[#0B1F3A] border-slate-200') + '">' + t + '</button>';
+      }).join('');
+    }
+
+    function confirmBooking() {
+      var center = document.getElementById('book-center').value;
+      var dateLabel = new Date(selectedDateIso + 'T00:00:00').toLocaleDateString('uk-UA', { weekday: 'short', day: '2-digit', month: '2-digit' });
+      try { localStorage.setItem('booking_' + normPhone(state.phone), JSON.stringify({ dateLabel: dateLabel, time: selectedTime, center: center })); } catch (e) {}
+      closeBooking(); render(); toast('Записано на ' + dateLabel + ' о ' + selectedTime + '!');
+    }
+
+    function cancelBooking() {
+      try { localStorage.removeItem('booking_' + normPhone(state.phone)); } catch (e) {}
+      render(); toast('Запис скасовано.');
+    }
+
+    function simDonate() {
+      var prev = state.ml, np = nextPayout();
+      state.donations++; state.ml += 650;
+      if (!np.starter) state.streak++;
+      state.last_date = new Date().toISOString().split('T')[0];
+      render();
+      var unlocked = MERCH.find(function(m) { return prev < m.ml && state.ml >= m.ml; });
+      toast(unlocked ? 'Відкрито мерч: ' + unlocked.title + '!' : 'Донацію #' + state.donations + ' зараховано (+' + fmt(np.sum) + ' ₴)');
+    }
+
+    function simMiss() {
+      if (state.donations < 3 || state.streak === 0) return toast('Ставка на старті або базі 500 ₴');
+      if (state.freeze > 0) { state.freeze--; toast('Спрацювала «Заморозка серії»! Ставку збережено.'); }
+      else { state.streak = 0; toast('Вікно пропущено — ставка повернулась до 500 ₴.'); }
+      render();
+    }
+
+    function copyRef() {
+      if (navigator.clipboard) navigator.clipboard.writeText(state.ref_code).catch(function() {});
+      toast('Код ' + state.ref_code + ' скопійовано!');
+    }
+
+    function claimMerch(id) {
+      state.claimed.push(id); render(); toast('QR-ваучер показано ресепшену — мерч видано!');
+    }
+
+    document.getElementById('phone-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    (async function() {
+      try { if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } } catch (e) {}
+      await loadDatabase();
+      try {
+        var saved = localStorage.getItem('donor_phone');
+        if (saved && db.some(function(d) { return normPhone(d.phone) === saved; })) loginByPhone(saved);
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>
